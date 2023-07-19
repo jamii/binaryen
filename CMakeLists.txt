@@ -141,7 +141,7 @@ endfunction()
 
 # Options
 
-option(BUILD_STATIC_LIB "Build as a static library" OFF)
+option(BUILD_STATIC_LIB "Build as a static library" ON)
 if(MSVC)
   # We don't have dllexport declarations set up for windows yet.
   set(BUILD_STATIC_LIB ON)
@@ -251,9 +251,8 @@ else()
 
   option(ENABLE_WERROR "Enable -Werror" ON)
 
-  set(THREADS_PREFER_PTHREAD_FLAG ON)
-  set(CMAKE_THREAD_PREFER_PTHREAD ON)
-  find_package(Threads REQUIRED)
+  set(THREADS_PREFER_PTHREAD_FLAG OFF)
+  set(CMAKE_THREAD_PREFER_PTHREAD OFF)
   if(NOT EMSCRIPTEN)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
       # wasm doesn't allow for x87 floating point math
@@ -398,14 +397,9 @@ set(binaryen_SOURCES
   src/binaryen-c.cpp
   ${binaryen_HEADERS}
 )
-if(BUILD_STATIC_LIB)
-  message(STATUS "Building libbinaryen as statically linked library.")
-  add_library(binaryen STATIC ${binaryen_SOURCES} ${binaryen_objs})
-  add_definitions(-DBUILD_STATIC_LIBRARY)
-else()
-  message(STATUS "Building libbinaryen as shared library.")
-  add_library(binaryen SHARED ${binaryen_SOURCES} ${binaryen_objs})
-endif()
+message(STATUS "Building libbinaryen as statically linked library.")
+add_library(binaryen STATIC ${binaryen_SOURCES} ${binaryen_objs})
+add_definitions(-DBUILD_STATIC_LIBRARY)
 target_link_libraries(binaryen ${CMAKE_THREAD_LIBS_INIT})
 if(INSTALL_LIBS OR NOT BUILD_STATIC_LIB)
   install(TARGETS binaryen
